@@ -59,7 +59,7 @@ ROOT_URLCONF = 'todo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR.joinpath("templates")],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,7 +77,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-ACCOUN_EMAIL_VERIFICATION = "none"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 WSGI_APPLICATION = 'todo.wsgi.application'
 
