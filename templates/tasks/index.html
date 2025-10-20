@@ -12,5 +12,11 @@
         </ul>
     {% else %}
         <h3>You have no lists</h3>
-    {% endif %}    
+    {% endif %}
+    
+    <p>
+        <a href="{% url 'list-add' %}" style="display:inline-block;padding:6px 12px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none;">
+            Add a new list
+        </a>
+    </p>
 {% endblock%}

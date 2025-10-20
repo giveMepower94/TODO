@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from django.urls import reverse
 
 
 class TodoListManager(models.Manager):
@@ -16,6 +17,9 @@ class TodoList(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse("list", args=[self.pk])
 
 
 class TodoItem(models.Model):
