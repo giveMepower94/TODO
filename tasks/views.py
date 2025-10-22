@@ -1,7 +1,7 @@
 from django.views.generic import ListView, CreateView
 from tasks.models import TodoList, TodoItem
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
 
 
@@ -24,6 +24,12 @@ class TodoItemListView(LoginRequiredMixin, ListView):
             raise PermissionDenied()
         return TodoItem.objects.filter(todo_list_id=self.kwargs["list_id"])
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        todo_list = TodoList.objects.get(pk=self.kwargs["list_id"])
+        context["todo_list"] = todo_list
+        return context
+
 
 class TodoListCreateView(LoginRequiredMixin, CreateView):
     model = TodoList
@@ -32,3 +38,21 @@ class TodoListCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
+
+
+class TodoItemCreateView(LoginRequiredMixin, CreateView):
+    model = TodoItem
+    fields = ["title", "description", "due_date"]
+
+    def form_valid(self, form):
+        todo_list = TodoList.objects.for_user(self.request.user).get(pk=self.kwargs["list_id"])
+        form.instance.todo_list = todo_list
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["todo_list"] = TodoList.objects.for_user(self.request.user).get(pk=self.kwargs["list_id"])
+        return context
+
+    def get_success_url(self):
+        return reverse("list", kwargs={"list_id": self.object.todo_list_id})

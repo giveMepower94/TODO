@@ -19,5 +19,6 @@
                     <h5>You have no task in this list</h5>
             {% endfor %}
         </ul>
+        <a href="{% url 'item-add' todo_list.id %}" role="button" style="display:inline-block;padding:6px 12px;background:#007bff;color:#fff;border-radius:4px;text-decoration:none;">Add a new item</a>
     </div>
 {% endblock %}
