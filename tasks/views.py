@@ -1,4 +1,4 @@
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from tasks.models import TodoList, TodoItem
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
@@ -58,7 +58,29 @@ class TodoItemCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse("list", kwargs={"list_id": self.object.todo_list_id})
 
-    def get_form(self, form_class = None):
+    def get_form(self, form_class=None):
         form = super().get_form(form_class)
         form.fields["due_date"].widget = forms.SelectDateWidget()
         return form
+
+
+class TodoItemUpdateView(LoginRequiredMixin, UpdateView):
+    model = TodoItem
+    fields = ["title", "description", "due_date"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["todo_list"] = self.object.todo_list
+        context["title"] = "Update Item"
+        return context
+
+    def get_success_url(self):
+        return reverse("list", args=[self.object.todo_list_id])
+
+
+class TodoListDeleteView(LoginRequiredMixin, DeleteView):
+    model = TodoList
+    success_url = reverse_lazy("index")
+
+    def get_queryset(self):
+        return TodoList.objects.for_user(self.request.user)

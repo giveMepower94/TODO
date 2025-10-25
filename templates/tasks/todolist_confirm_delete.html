@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h3>Delete list</h3>
+    <p>Are you sure you want to delete {{ object.title }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <input value="Delete" type="submit">
+        <a href="{% url 'index' %}" 
+            role="button"
+            style="display:inline-block;
+                    padding:8px 14px;
+                    background-color:#007bff;
+                    color:white;
+                    border-radius:5px;
+                    text-decoration:none;
+                    font-weight:500;">
+                Cancel
+            </a>
+    </form>
+{% endblock %}
