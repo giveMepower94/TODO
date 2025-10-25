@@ -1,6 +1,10 @@
-{% extends 'allauth/account/base.html' %}
-{% block extra_head %}
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+{% endblock %}
+
+{% block content %}
+    {% block inner_content %}
+    {% endblock %}
 {% endblock %}
 
 

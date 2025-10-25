@@ -1,0 +1,28 @@
+{% extends "account/base.html" %}
+
+{% block inner_content %}
+<h2>Are you sure you want to logout?</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" style="
+            background:#d9534f;
+            color:white;
+            border:none;
+            padding:10px 20px;
+            border-radius:6px;
+            cursor:pointer;">
+        Logout
+    </button>
+
+    <a href="{% url 'index' %}" style="
+            margin-left:10px;
+            background:#6c757d;
+            color:white;
+            padding:10px 20px;
+            border-radius:6px;
+            text-decoration:none;">
+        Cancel
+    </a>
+</form>
+{% endblock %}

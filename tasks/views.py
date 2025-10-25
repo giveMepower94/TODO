@@ -1,7 +1,9 @@
-from django.views.generic import ListView
-from tasks.models import TodoList
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from tasks.models import TodoList, TodoItem
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.core.exceptions import PermissionDenied
+from django import forms
 
 
 # Create your views here.
@@ -11,3 +13,92 @@ class TodoListListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return TodoList.objects.for_user(self.request.user)
+
+
+class TodoItemListView(LoginRequiredMixin, ListView):
+    login_url = reverse_lazy("account_login")
+    template_name = "tasks/todo_list.html"
+
+    def get_queryset(self):
+        todo_list = TodoList.objects.for_user(self.request.user).filter(pk=self.kwargs["list_id"])
+        if todo_list is None:
+            raise PermissionDenied()
+        return TodoItem.objects.filter(todo_list_id=self.kwargs["list_id"])
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        todo_list = TodoList.objects.get(pk=self.kwargs["list_id"])
+        context["todo_list"] = todo_list
+        return context
+
+
+class TodoListCreateView(LoginRequiredMixin, CreateView):
+    model = TodoList
+    fields = ["title"]
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+
+class TodoItemCreateView(LoginRequiredMixin, CreateView):
+    model = TodoItem
+    fields = ["title", "description", "due_date"]
+
+    def form_valid(self, form):
+        todo_list = TodoList.objects.for_user(self.request.user).get(pk=self.kwargs["list_id"])
+        form.instance.todo_list = todo_list
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["todo_list"] = TodoList.objects.for_user(self.request.user).get(pk=self.kwargs["list_id"])
+        return context
+
+    def get_success_url(self):
+        return reverse("list", kwargs={"list_id": self.object.todo_list_id})
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields["due_date"].widget = forms.SelectDateWidget()
+        return form
+
+
+class TodoItemUpdateView(LoginRequiredMixin, UpdateView):
+    model = TodoItem
+    fields = ["title", "description", "due_date"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["todo_list"] = self.object.todo_list
+        context["title"] = "Update Item"
+        return context
+
+    def get_success_url(self):
+        return reverse("list", args=[self.object.todo_list_id])
+
+
+class TodoListDeleteView(LoginRequiredMixin, DeleteView):
+    model = TodoList
+    success_url = reverse_lazy("index")
+
+    def get_queryset(self):
+        return TodoList.objects.for_user(self.request.user)
+
+
+class TodoItemDeleteView(LoginRequiredMixin, DeleteView):
+    model = TodoItem
+
+    def get_success_url(self):
+        return reverse_lazy("list", args=[self.kwargs["list_id"]])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["todo_list"] = self.object.todo_list
+        return context
+
+    def get_queryset(self):
+        todo_list = TodoList.objects.for_user(self.request.user).filter(pk=self.kwargs["list_id"])
+        if todo_list is None:
+            raise PermissionDenied()
+        return TodoItem.objects.filter(todo_list_id=self.kwargs["list_id"])

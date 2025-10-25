@@ -1,0 +1,24 @@
+{% extends "account/base.html" %}
+
+{% block inner_content %}
+<h2>Login</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" style="
+            background:#007bff;
+            color:white;
+            padding:10px 20px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;">
+        Log in
+    </button>
+</form>
+
+<p style="margin-top:12px;">
+    Don't have an account? <a href="{% url 'account_signup' %}">Sign up</a>
+</p>
+{% endblock %}
