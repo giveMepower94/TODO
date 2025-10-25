@@ -3,6 +3,7 @@ from tasks.models import TodoList, TodoItem
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy, reverse
 from django.core.exceptions import PermissionDenied
+from django import forms
 
 
 # Create your views here.
@@ -56,3 +57,8 @@ class TodoItemCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse("list", kwargs={"list_id": self.object.todo_list_id})
+
+    def get_form(self, form_class = None):
+        form = super().get_form(form_class)
+        form.fields["due_date"].widget = forms.SelectDateWidget()
+        return form
