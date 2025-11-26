@@ -1,7 +1,8 @@
 from django.urls import path
-from API.views import TodoListListView
+from API.views import TodoListListCreateView, TodoListRetrieveUpdateDestroyView
 
 
 urlpatterns = [
-    path("lists/", TodoListListView.as_view())
+    path("lists/", TodoListListCreateView.as_view()),
+    path("lists/<int:pk>/", TodoListRetrieveUpdateDestroyView.as_view()),
 ]
